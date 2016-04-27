@@ -16,5 +16,3 @@ Variables hidrológicas
 - Hsol2 humedad de suelo en la capa inferior
 - Hcub humedad sobre la cubierta vegetal
 - SCn porcentaje de píxel cubierto de nieve
-
-kk de vaka
