@@ -2,10 +2,56 @@
 title: "Analisis_generico"
 output: html_document
 ---
+# Definir directorio de trabajo
+
+Aqui probablemente el codigo te dara problemas, porque queremos definir como directorio de trabajo la carpeta de COPLAS porque los archivos estan ahi. Como este Markdown esta dentro de un Proyecto con su carpeta asociada, R entiende que el directorio es ese (".../Instar/implementaciones/instar_baza/scripts/git_Instar_baza"). Estrictamente hablando deberiamos escribir el codigo de manera que cuando llamemos a un archivo le demos el path apropiado ("...\Instar\calibracion_validacion\fuentes_datos_validacion\COPLAS_PLAGAS"). Pero tambien se puede definir el directorio de manera manual (Session > Set Working Directory > Choose Directory), y asi R si acepta que sea una carpeta distinta a donde esta el proyecto. Por mi las dos opciones valen, la que te sea mas facil :)
+
+# Cargar paquetes
+```{r}
+library(lubridate) # Para las fechas
+```
+
 # DATOS INSTAR
 
-SUBSECCIONES
+## Importar datos INSTAR 
+
+Y crear un data.frame con todas las variables (temperaturas tambien, asi esta para la validacion interna)
+
+## Anadir biociclos al data.frame
+
+
+## Agregacion INSTAR
+
+Media del vigor y sumas (l1, l2 y l1+l2) por biociclo
+
+
+## Ln INSTAR (l1, l2 y l1+l2)
+
+
 
 # DATOS COPLAS
 
-SUBSECCIONES
+## Importar datos COPLAS 
+
+Y seleccionar el rodal correspondiente (como subset, por ejemplo?)
+
+## Definir biociclo COPLAS (opcional)
+
+
+# VALIDACION EXTERNA
+
+## lm vigor vs COPLAS
+
+Asunciones y modelo de regresión lineal
+
+## glm log(l1, l2, l1+l2) vs COPLAS
+
+Asunciones y modelo de regresión lineal
+
+# VALIDACION INTERNA
+
+## Eliminar 29 de febrero
+
+## Definir ts: huevos, l1, l2, crisalidas, energia, tmax, tmin, tmedia
+
+NOTA: se supone que hay alguna manera de escribir el Markdown de manera que al verlo desde Github se vean las graficas o los resultados de la ejecucion. Esto estaria muy bien para poder ver los resultados de las regresiones de un vistazo y comparar entre ejecuciones. Seguro que Antonio sabe como se hace, el viernes le preguntamos :D
