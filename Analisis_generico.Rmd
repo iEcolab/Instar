@@ -17,167 +17,249 @@ library(lubridate) # Para las fechas
 
 ## Importar datos INSTAR 
 
-Se importarán los datos Instar de Sierra de Baza-Zona 2 (evolucion plaga, evolucion hospedador y temperatura max, min y media)
+- La tabla de datos se construye en excel y se guarda como .csv
+- Se abre con procesador de texto, y se comprueba que la fecha está en formato mm-dd-yy
+- Se guarda como .txt
+ Las columnas que constituyen la tabla son: fecha, huevo, L1, L2, crisalida, radiacion, tmax, tmin, tmed y exergia.
+
+
+TOMAMOS EL RODAL GR-023-008 (Sierra de Baza) COMO EJEMPLO
 ```{r}
-INSTAR_baza2 <-read.table("INSTAR_bz2.csv", header=T, sep=";", dec=",")
-temp_bz2<-read.table("temp_bz2.csv", header = TRUE, sep= ",", dec = ".")
-INSTAR_bz2<-cbind(INSTAR_baza2, temp_bz2)
-INSTAR_bz2<-INSTAR_bz2[-c(7)]
-
-names(INSTAR_bz2)[1] <- "fecha"
-names(INSTAR_bz2)[2] <- "huevo"
-names(INSTAR_bz2)[3] <- "l1"
-names(INSTAR_bz2)[4] <- "l2"
-names(INSTAR_bz2)[5] <- "crisalida"
-names(INSTAR_bz2)[6] <- "exergia"
-names(INSTAR_bz2)[7] <- "tmed"
-names(INSTAR_bz2)[8] <- "tmax"
-names(INSTAR_bz2)[9] <- "tmin"
-
-INSTAR_bz2$fecha <-as.Date(INSTAR_bz2$fecha, format="%d-%m-%Y")
+INSTAR<-read.table("instar_bz008.txt", header=T, sep=",", dec=".")
+INSTAR$fecha <-as.Date(INSTAR$fecha, format="%m-%d-%y")#aunque pongo formato mm/dd/yyyy se pone como yyyy-mm-dd
 ```
 
 ## Anadir biociclos al data.frame
 ```{r}
-INSTAR_bz2$yday <- yday(INSTAR_bz2$fecha) # anadimos el dia del anio con el paquete lubridate
-INSTAR_bz2$year <- year(INSTAR_bz2$fecha) # anadimos el anio con el paquete lubridate
-
-INSTAR_bz2$biociclo <- NULL
+INSTAR$yday <- yday(INSTAR$fecha) # anadimos el dia del anio con el paquete lubridate
+INSTAR$year <- year(INSTAR$fecha) # anadimos el anio con el paquete lubridate
+INSTAR$biociclo <- NULL
 ```
 
+Aparece dos chunks para este proceso, uno para Baza y otro para Sierra Nevada, ya que tienen fechas de inicio diferentes. 
+
 ```{r}
-subset_1993 <- subset(INSTAR_bz2, INSTAR_bz2$year==1993)
+#Baza
+subset_1993 <- subset(INSTAR, INSTAR$year==1993)
 for(i in 1:length(subset_1993$yday)){
   ifelse(subset_1993$yday[i]<=79, 
        subset_1993$biociclo[i] <- 1, subset_1993$biociclo[i] <- 2)
 }
 
-subset_1994 <- subset(INSTAR_bz2, INSTAR_bz2$year==1994)
+subset_1994 <- subset(INSTAR, INSTAR$year==1994)
 for(i in 1:length(subset_1994$yday)){
   ifelse(subset_1994$yday[i]<=79, 
        subset_1994$biociclo[i] <- 2, subset_1994$biociclo[i] <- 3)
 }
 
-subset_1995 <- subset(INSTAR_bz2, INSTAR_bz2$year==1995)
+subset_1995 <- subset(INSTAR, INSTAR$year==1995)
 for(i in 1:length(subset_1995$yday)){
   ifelse(subset_1995$yday[i]<=79, 
        subset_1995$biociclo[i] <- 3, subset_1995$biociclo[i] <- 4)
 }
 
-subset_1996 <- subset(INSTAR_bz2, INSTAR_bz2$year==1996)
+subset_1996 <- subset(INSTAR, INSTAR$year==1996)
 for(i in 1:length(subset_1996$yday)){
   ifelse(subset_1996$yday[i]<=79, 
        subset_1996$biociclo[i] <- 4, subset_1996$biociclo[i] <- 5)
 }
 
-subset_1997 <- subset(INSTAR_bz2, INSTAR_bz2$year==1997)
+subset_1997 <- subset(INSTAR, INSTAR$year==1997)
 for(i in 1:length(subset_1997$yday)){
   ifelse(subset_1997$yday[i]<=79, 
        subset_1997$biociclo[i] <- 5, subset_1997$biociclo[i] <- 6)
 }
 
-subset_1998 <- subset(INSTAR_bz2, INSTAR_bz2$year==1998)
+subset_1998 <- subset(INSTAR, INSTAR$year==1998)
 for(i in 1:length(subset_1998$yday)){
   ifelse(subset_1998$yday[i]<=79, 
        subset_1998$biociclo[i] <- 6, subset_1998$biociclo[i] <- 7)
 }
 
-subset_1999 <- subset(INSTAR_bz2, INSTAR_bz2$year==1999)
+subset_1999 <- subset(INSTAR, INSTAR$year==1999)
 for(i in 1:length(subset_1999$yday)){
   ifelse(subset_1999$yday[i]<=79, 
        subset_1999$biociclo[i] <- 7, subset_1999$biociclo[i] <- 8)
 }
 
-subset_2000 <- subset(INSTAR_bz2, INSTAR_bz2$year==2000)
+subset_2000 <- subset(INSTAR, INSTAR$year==2000)
 for(i in 1:length(subset_2000$yday)){
   ifelse(subset_2000$yday[i]<=79, 
        subset_2000$biociclo[i] <- 8, subset_2000$biociclo[i] <- 9)
 }
 
-subset_2001 <- subset(INSTAR_bz2, INSTAR_bz2$year==2001)
+subset_2001 <- subset(INSTAR, INSTAR$year==2001)
 for(i in 1:length(subset_2001$yday)){
   ifelse(subset_2001$yday[i]<=79, 
        subset_2001$biociclo[i] <- 9, subset_2001$biociclo[i] <- 10)
 }
 
-subset_2002 <- subset(INSTAR_bz2, INSTAR_bz2$year==2002)
+subset_2002 <- subset(INSTAR, INSTAR$year==2002)
 for(i in 1:length(subset_2002$yday)){
   ifelse(subset_2002$yday[i]<=79, 
        subset_2002$biociclo[i] <- 10, subset_2002$biociclo[i] <- 11)
 }
 
-subset_2003 <- subset(INSTAR_bz2, INSTAR_bz2$year==2003)
+subset_2003 <- subset(INSTAR, INSTAR$year==2003)
 for(i in 1:length(subset_2003$yday)){
   ifelse(subset_2003$yday[i]<=79, 
        subset_2003$biociclo[i] <- 11, subset_2003$biociclo[i] <- 12)
 }
 
-subset_2004 <- subset(INSTAR_bz2, INSTAR_bz2$year==2004)
+subset_2004 <- subset(INSTAR, INSTAR$year==2004)
 for(i in 1:length(subset_2004$yday)){
   ifelse(subset_2004$yday[i]<=79, 
        subset_2004$biociclo[i] <- 12, subset_2004$biociclo[i] <- 13)
 }
-subset_2005 <- subset(INSTAR_bz2, INSTAR_bz2$year==2005)
+subset_2005 <- subset(INSTAR, INSTAR$year==2005)
 for(i in 1:length(subset_2005$yday)){
   ifelse(subset_2005$yday[i]<=79, 
        subset_2005$biociclo[i] <- 13, subset_2005$biociclo[i] <- 14)
 }
 
-subset_2006 <- subset(INSTAR_bz2, INSTAR_bz2$year==2006)
+subset_2006 <- subset(INSTAR, INSTAR$year==2006)
 for(i in 1:length(subset_2006$yday)){
   ifelse(subset_2006$yday[i]<=79, 
        subset_2006$biociclo[i] <- 14, subset_2006$biociclo[i] <- 15)
 }
 
-subset_2007 <- subset(INSTAR_bz2, INSTAR_bz2$year==2007)
+subset_2007 <- subset(INSTAR, INSTAR$year==2007)
 for(i in 1:length(subset_2007$yday)){
   ifelse(subset_2007$yday[i]<=79, 
        subset_2007$biociclo[i] <- 15, subset_2007$biociclo[i] <- 16)
 }
 
-subset_2008 <- subset(INSTAR_bz2, INSTAR_bz2$year==2008)
+subset_2008 <- subset(INSTAR, INSTAR$year==2008)
 for(i in 1:length(subset_2008$yday)){
   ifelse(subset_2008$yday[i]<=79, 
        subset_2008$biociclo[i] <- 16, subset_2008$biociclo[i] <- 17)
 }
 
-subset_2009 <- subset(INSTAR_bz2, INSTAR_bz2$year==2009)
+subset_2009 <- subset(INSTAR, INSTAR$year==2009)
 for(i in 1:length(subset_2009$yday)){
   ifelse(subset_2009$yday[i]<=79, 
        subset_2009$biociclo[i] <- 17, subset_2009$biociclo[i] <- 18)
 }
 
-subset_2010 <- subset(INSTAR_bz2, INSTAR_bz2$year==2010)
+subset_2010 <- subset(INSTAR, INSTAR$year==2010)
 for(i in 1:length(subset_2010$yday)){
   ifelse(subset_2010$yday[i]<=79, 
        subset_2010$biociclo[i] <- 18, subset_2010$biociclo[i] <- 19)
 }
 
-subset_2011 <- subset(INSTAR_bz2, INSTAR_bz2$year==2011)
+subset_2011 <- subset(INSTAR, INSTAR$year==2011)
 for(i in 1:length(subset_2011$yday)){
   ifelse(subset_2011$yday[i]<=79, 
        subset_2011$biociclo[i] <- 19, subset_2011$biociclo[i] <- 20)
 }
 
-subset_2012 <- subset(INSTAR_bz2, INSTAR_bz2$year==2012)
+subset_2012 <- subset(INSTAR, INSTAR$year==2012)
 for(i in 1:length(subset_2012$yday)){
   ifelse(subset_2012$yday[i]<=79, 
        subset_2012$biociclo[i] <- 20, subset_2012$biociclo[i] <- 21)
 }
 
-subset_2013 <- subset(INSTAR_bz2, INSTAR_bz2$year==2013)
+subset_2013 <- subset(INSTAR, INSTAR$year==2013)
 for(i in 1:length(subset_2013$yday)){
   ifelse(subset_2013$yday[i]<=79, 
        subset_2013$biociclo[i] <- 21, subset_2013$biociclo[i] <- 22)
 }
 
-subset_2014 <- subset(INSTAR_bz2, INSTAR_bz2$year==2014)
+subset_2014 <- subset(INSTAR, INSTAR$year==2014)
 for(i in 1:length(subset_2014$yday)){
   ifelse(subset_2014$yday[i]<=79, 
        subset_2014$biociclo[i] <- 22, subset_2014$biociclo[i] <- 23)
 }
 
-INSTAR_bz2 <- rbind(subset_1993, subset_1994, subset_1995, subset_1996, subset_1997, subset_1998, subset_1999, subset_2000, subset_2001, subset_2002, subset_2003, subset_2004, subset_2005, subset_2006, subset_2007, subset_2008, subset_2009, subset_2010, subset_2011, subset_2012, subset_2013, subset_2014)
+INSTAR_bz008 <- rbind(subset_1994, subset_1995, subset_1996, subset_1997, subset_1998, subset_1999, subset_2000, subset_2001, subset_2002, subset_2003, subset_2004, subset_2005, subset_2006, subset_2007, subset_2008, subset_2009, subset_2010, subset_2011, subset_2012, subset_2013) #Se quitan el primer y ultimo biociclo porque no estan completos
+```
+
+```{r}
+#Sierra Nevada
+subset_2001 <- subset(INSTAR, INSTAR$year==2001)
+for(i in 1:length(subset_2001$yday)){
+  ifelse(subset_2001$yday[i]<=79, 
+       subset_2001$biociclo[i] <- 1, subset_2001$biociclo[i] <- 2)
+}
+
+subset_2002 <- subset(INSTAR, INSTAR$year==2002)
+for(i in 1:length(subset_2002$yday)){
+  ifelse(subset_2002$yday[i]<=79, 
+       subset_2002$biociclo[i] <- 2, subset_2002$biociclo[i] <- 3)
+}
+
+subset_2003 <- subset(INSTAR, INSTAR$year==2003)
+for(i in 1:length(subset_2003$yday)){
+  ifelse(subset_2003$yday[i]<=79, 
+       subset_2003$biociclo[i] <- 3, subset_2003$biociclo[i] <- 4)
+}
+
+subset_2004 <- subset(INSTAR, INSTAR$year==2004)
+for(i in 1:length(subset_2004$yday)){
+  ifelse(subset_2004$yday[i]<=79, 
+       subset_2004$biociclo[i] <- 4, subset_2004$biociclo[i] <- 5)
+}
+subset_2005 <- subset(INSTAR, INSTAR$year==2005)
+for(i in 1:length(subset_2005$yday)){
+  ifelse(subset_2005$yday[i]<=79, 
+       subset_2005$biociclo[i] <- 5, subset_2005$biociclo[i] <- 6)
+}
+
+subset_2006 <- subset(INSTAR, INSTAR$year==2006)
+for(i in 1:length(subset_2006$yday)){
+  ifelse(subset_2006$yday[i]<=79, 
+       subset_2006$biociclo[i] <- 6, subset_2006$biociclo[i] <- 7)
+}
+
+subset_2007 <- subset(INSTAR, INSTAR$year==2007)
+for(i in 1:length(subset_2007$yday)){
+  ifelse(subset_2007$yday[i]<=79, 
+       subset_2007$biociclo[i] <- 7, subset_2007$biociclo[i] <- 8)
+}
+
+subset_2008 <- subset(INSTAR, INSTAR$year==2008)
+for(i in 1:length(subset_2008$yday)){
+  ifelse(subset_2008$yday[i]<=79, 
+       subset_2008$biociclo[i] <- 8, subset_2008$biociclo[i] <- 9)
+}
+
+subset_2009 <- subset(INSTAR, INSTAR$year==2009)
+for(i in 1:length(subset_2009$yday)){
+  ifelse(subset_2009$yday[i]<=79, 
+       subset_2009$biociclo[i] <- 9, subset_2009$biociclo[i] <- 10)
+}
+
+subset_2010 <- subset(INSTAR, INSTAR$year==2010)
+for(i in 1:length(subset_2010$yday)){
+  ifelse(subset_2010$yday[i]<=79, 
+       subset_2010$biociclo[i] <- 10, subset_2010$biociclo[i] <- 11)
+}
+
+subset_2011 <- subset(INSTAR, INSTAR$year==2011)
+for(i in 1:length(subset_2011$yday)){
+  ifelse(subset_2011$yday[i]<=79, 
+       subset_2011$biociclo[i] <- 11, subset_2011$biociclo[i] <- 12)
+}
+
+subset_2012 <- subset(INSTAR, INSTAR$year==2012)
+for(i in 1:length(subset_2012$yday)){
+  ifelse(subset_2012$yday[i]<=79, 
+       subset_2012$biociclo[i] <- 12, subset_2012$biociclo[i] <- 13)
+}
+
+subset_2013 <- subset(INSTAR, INSTAR$year==2013)
+for(i in 1:length(subset_2013$yday)){
+  ifelse(subset_2013$yday[i]<=79, 
+       subset_2013$biociclo[i] <- 13, subset_2013$biociclo[i] <- 14)
+}
+
+subset_2014 <- subset(INSTAR, INSTAR$year==2014)
+for(i in 1:length(subset_2014$yday)){
+  ifelse(subset_2014$yday[i]<=79, 
+       subset_2014$biociclo[i] <- 14, subset_2014$biociclo[i] <- 15)
+}
+
+INSTAR<- rbind(subset_2002, subset_2003, subset_2004, subset_2005, subset_2006, subset_2007, subset_2008, subset_2009, subset_2010, subset_2011, subset_2012, subset_2013)
 ```
 
 ## Agregacion INSTAR
@@ -185,31 +267,31 @@ INSTAR_bz2 <- rbind(subset_1993, subset_1994, subset_1995, subset_1996, subset_1
 Media del vigor y sumas (l1, l2 y l1+l2) por biociclo
 
 ```{r}
-sum_l1<- aggregate(x = INSTAR_bz2$l1, by=list(biociclo=INSTAR_bz2$biociclo), FUN=sum, na.rm=TRUE)
+sum_l1<- aggregate(x = INSTAR$L1, by=list(biociclo=INSTAR$biociclo), FUN=sum, na.rm=TRUE)
 names(sum_l1)[2] <- "sum_l1"
 
-sum_l2<- aggregate(x = INSTAR_bz2$l2, by=list(biociclo=INSTAR_bz2$biociclo), FUN=sum, na.rm=TRUE)
+sum_l2<- aggregate(x = INSTAR$L2, by=list(biociclo=INSTAR$biociclo), FUN=sum, na.rm=TRUE)
 names(sum_l2)[2] <- "sum_l2"
 
-larvas_bz2<-cbind(sum_l1, sum_l2)
-larvas_bz2<-larvas_bz2[-c(3)]
-larvas_bz2$sum_l1l2=larvas_bz2[,2]+larvas_bz2[,3]
+larvas<-cbind(sum_l1, sum_l2)
+larvas<-larvas[-c(3)]
+larvas$sum_l1l2=larvas[,2]+larvas[,3]
 
-avg_exergia<-aggregate(INSTAR_bz2$exergia, by=list(biociclo=INSTAR_bz2$biociclo), FUN=mean, na.rm=TRUE)
+avg_exergia<-aggregate(INSTAR$exergia, by=list(biociclo=INSTAR$biociclo), FUN=mean, na.rm=TRUE)
 names(avg_exergia)[2] <- "avg_exergia"
 
-agreg_INSTAR_bz2 <- cbind(larvas_bz2,avg_exergia)
-agreg_INSTAR_bz2_biociclo <- agreg_INSTAR_bz2[ -c(5) ]
+agreg_INSTAR <- cbind(larvas,avg_exergia)
+agreg_INSTAR_biociclo <- agreg_INSTAR[ -c(5) ]
 
-#write.csv(agreg_INSTAR_bz2_biociclo,"agreg_INSTAR_bz2_biociclo.csv",row.names=FALSE, na="")
+#write.csv(agreg_INSTAR_biociclo,"agreg_INSTAR_bz008_biociclo.csv",row.names=FALSE, na="")
 ```
 
 ## Ln INSTAR (l1, l2 y l1+l2)
-Se agrega una columna a la tabla 'Agreg_INSTAR_bz2_biociclo' con el resultado del Ln de cada columna referente a Larvas (sum_l1, sum_l2, sum_l1l2)
+Se agrega una columna a la tabla 'Agreg_INSTAR_xxxxx_biociclo' con el resultado del Ln de cada columna referente a Larvas (sum_l1, sum_l2, sum_l1l2)
 ```{r}
-agreg_INSTAR_bz2_biociclo$l1_ln<-with(agreg_INSTAR_bz2_biociclo, log(sum_l1))
-agreg_INSTAR_bz2_biociclo$l2_ln<-with(agreg_INSTAR_bz2_biociclo, log(sum_l2))
-agreg_INSTAR_bz2_biociclo$l1l2_ln<-with(agreg_INSTAR_bz2_biociclo, log(sum_l1l2))
+agreg_INSTAR_biociclo$l1_ln<-with(agreg_INSTAR_biociclo, log(sum_l1))
+agreg_INSTAR_biociclo$l2_ln<-with(agreg_INSTAR_biociclo, log(sum_l2))
+agreg_INSTAR_biociclo$l1l2_ln<-with(agreg_INSTAR_biociclo, log(sum_l1l2))
 ```
 
 # DATOS COPLAS
@@ -217,36 +299,92 @@ agreg_INSTAR_bz2_biociclo$l1l2_ln<-with(agreg_INSTAR_bz2_biociclo, log(sum_l1l2)
 ## Importar datos COPLAS 
 
 ```{r}
-COPLAS_baza2<-read.csv("zona_baza.csv", header=TRUE, sep=",")
-COPLAS_baza2<-COPLAS_baza2[-c(1)]#Quito la columna 1 porque se ha generado una columna X con números, que creo que son el número de fila. 
+COPLAS<-read.csv("zona_baza.csv", header=TRUE, sep=",")
+names(COPLAS)[1] <- "RODAL"
 ```
 
 Llamamos a cada rodal como los tres ultimos numeros de su codigo GRxxxxxx
+Activar el rodal necesario para el análisis. 
 ```{r}
-bz2_006<-subset(COPLAS_baza2, RODAL == "GR000006")
-bz2_008<-subset(COPLAS_baza2, RODAL == "GR023008")
-bz2_012<-subset(COPLAS_baza2, RODAL == "GR023012")
-bz2_015<-subset(COPLAS_baza2, RODAL == "GR023015")
-bz2_017<-subset(COPLAS_baza2, RODAL == "GR023017")
-bz2_021<-subset(COPLAS_baza2, RODAL == "GR023021")
+#rodal<-subset(COPLAS_baza, RODAL == "GR000006")
+rodal<-subset(COPLAS_baza, RODAL == "GR023008")
+#rodal<-subset(COPLAS_baza, RODAL == "GR023012")
+#rodal<-subset(COPLAS_baza, RODAL == "GR023015")
+#rodal<-subset(COPLAS_baza, RODAL == "GR023017")
+#rodal<-subset(COPLAS_baza, RODAL == "GR023021")
+
+#rodal<-subset(COPLAS_snevada, RODAL == "GR000030")
+#rodal<-subset(COPLAS_snevada, RODAL == "GR134018")
+#rodal<-subset(COPLAS_snevada, RODAL == "GR134020")
+#rodal<-subset(COPLAS_snevada, RODAL == "GR134021")
 ```
+
 ## Definir biociclo COPLAS (opcional)
+```{r}
+rodal$biociclo <- 1:23 #Sierra de Baza
+#rodal$biociclo <- 1:15 #Sierra Nevada
+```
 
 
 # VALIDACION EXTERNA
 
-## lm vigor vs COPLAS
+## lm [vigor vs COPLAS]
 
 Asunciones y modelo de regresión lineal
+```{r fig.keep='all'}
+hist(INSTAR$exergia) # todos los datos de energia
+hist(agreg_INSTAR_biociclo$avg_exergia) # datos medios para cada anio
+var_exergia <- aggregate(x = INSTAR$exergia, by=list(year=INSTAR$year), FUN=var, na.rm=TRUE)
+plot(var_exergia)
+#intersect?
+reg_exergia <- lm(agreg_INSTAR_biociclo$avg_exergia ~ rodal$GRADO.REVISADO[(2:22)])
+abline(reg_exergia)
+summary(reg_exergia)
+plot(reg_exergia)
+plot(agreg_INSTAR_biociclo$avg_exergia ~ rodal$GRADO.REVISADO[(2:22)])
+dev.off()
+```
 
-## glm log(l1, l2, l1+l2) vs COPLAS
+
+## glm [log(l1, l2, l1+l2) vs COPLAS]
 
 Asunciones y modelo de regresión lineal
+```{r}
+
+```
+
 
 # VALIDACION INTERNA
 
-## Eliminar 29 de febrero
+## Eliminar 29 de febrero 
+```{r}
+#Baza_008: eliminar filas 979, 2440, 3901, 5362, 6823
+
+```
 
 ## Definir ts: huevos, l1, l2, crisalidas, energia, tmax, tmin, tmedia
+
+```{r}
+plaga_ts<-ts(INSTAR[2:5], class=c("mts"), frequency=365)#Frecuencia es igual la numero de dias?
+temp_ts<-ts(INSTAR[7:9], class=c("mts"), frequency=365)
+huevos_ts<-ts(INSTAR$huevo, frequency=365)
+L1_ts<-ts(INSTAR$L1, frequency=365)
+L2_ts<-ts(INSTAR$L2, frequency=365)
+crisalidas_ts<-ts(INSTAR$crisalida, frequency=1)
+exergia_ts<-ts(INSTAR$exergia, frequency=1)
+tmax_ts<-ts(INSTAR$tmax, frequency=1)
+tmin_ts<-ts(INSTAR$tmin, frequency=1)
+tmed_ts<-ts(INSTAR$tmed, frequency=1)
+```
+
+```{r}
+summary(plaga_ts)
+cycle (plaga_ts)
+class(plaga_ts)
+str(plaga_ts)
+decompose(plaga_ts)
+plot(decompose(plaga_ts))
+```
+
 
 NOTA: se supone que hay alguna manera de escribir el Markdown de manera que al verlo desde Github se vean las graficas o los resultados de la ejecucion. Esto estaria muy bien para poder ver los resultados de las regresiones de un vistazo y comparar entre ejecuciones. Seguro que Antonio sabe como se hace, el viernes le preguntamos :D
