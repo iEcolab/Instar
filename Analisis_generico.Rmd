@@ -171,7 +171,7 @@ for(i in 1:length(subset_2014$yday)){
        subset_2014$biociclo[i] <- 22, subset_2014$biociclo[i] <- 23)
 }
 
-INSTAR_bz008 <- rbind(subset_1994, subset_1995, subset_1996, subset_1997, subset_1998, subset_1999, subset_2000, subset_2001, subset_2002, subset_2003, subset_2004, subset_2005, subset_2006, subset_2007, subset_2008, subset_2009, subset_2010, subset_2011, subset_2012, subset_2013) #Se quitan el primer y ultimo biociclo porque no estan completos
+INSTAR<- rbind(subset_1994, subset_1995, subset_1996, subset_1997, subset_1998, subset_1999, subset_2000, subset_2001, subset_2002, subset_2003, subset_2004, subset_2005, subset_2006, subset_2007, subset_2008, subset_2009, subset_2010, subset_2011, subset_2012, subset_2013) #Se quitan el primer y ultimo biociclo porque no estan completos
 ```
 
 ```{r}
@@ -283,17 +283,21 @@ names(avg_exergia)[2] <- "avg_exergia"
 agreg_INSTAR <- cbind(larvas,avg_exergia)
 agreg_INSTAR_biociclo <- agreg_INSTAR[ -c(5) ]
 
+#Eliminar fila de biociclo 2 porque no es un ciclo completo, va desde junio hasta marzo. 
+agreg_INSTAR_biociclo<-agreg_INSTAR_biociclo[-c(1),]
+
 #write.csv(agreg_INSTAR_biociclo,"agreg_INSTAR_bz008_biociclo.csv",row.names=FALSE, na="")
+
 ```
 
 ## Ln INSTAR (l1, l2 y l1+l2)
 Se agrega una columna a la tabla 'Agreg_INSTAR_xxxxx_biociclo' con el resultado del Ln de cada columna referente a Larvas (sum_l1, sum_l2, sum_l1l2)
-```{r}
+```{r, eval=FALSE, include=FALSE}
 agreg_INSTAR_biociclo$l1_ln<-with(agreg_INSTAR_biociclo, log(sum_l1))
 agreg_INSTAR_biociclo$l2_ln<-with(agreg_INSTAR_biociclo, log(sum_l2))
 agreg_INSTAR_biociclo$l1l2_ln<-with(agreg_INSTAR_biociclo, log(sum_l1l2))
 ```
-
+*Update: En la reunión del 9 de septiembre se llegó a la conclusión de que no era necesario transformar las variables. 
 # DATOS COPLAS
 
 ## Importar datos COPLAS 
@@ -325,32 +329,64 @@ rodal$biociclo <- 1:23 #Sierra de Baza
 #rodal$biociclo <- 1:15 #Sierra Nevada
 ```
 
+##Crear una tabla unica en la que tengamos los datos agregados de Instar y los datos de COPLAS
+En esta tabla aparecen los datos de Instar agregados, los Ln de sumL1, sumL2 y sumL1+sumL2, el anio y el grado de infestacion de COPLAS. 
+```{r}
+COPLAS_INSTAR<-merge.data.frame(agreg_INSTAR_biociclo, rodal, by.x = "biociclo")
+COPLAS_INSTAR<-COPLAS_INSTAR[-c(9)] #Eliminar la columna con el nombre del rodal
+```
+
 
 # VALIDACION EXTERNA
 
 ## lm [vigor vs COPLAS]
-
-Asunciones y modelo de regresión lineal
-```{r fig.keep='all'}
-hist(INSTAR$exergia) # todos los datos de energia
-hist(agreg_INSTAR_biociclo$avg_exergia) # datos medios para cada anio
-var_exergia <- aggregate(x = INSTAR$exergia, by=list(year=INSTAR$year), FUN=var, na.rm=TRUE)
-plot(var_exergia)
-#intersect?
-reg_exergia <- lm(agreg_INSTAR_biociclo$avg_exergia ~ rodal$GRADO.REVISADO[(2:22)])
-abline(reg_exergia)
-summary(reg_exergia)
-plot(reg_exergia)
-plot(agreg_INSTAR_biociclo$avg_exergia ~ rodal$GRADO.REVISADO[(2:22)])
-dev.off()
+```{r}
+library(graphics)
+library(ggplot2)
 ```
 
+Asunciones y modelo de regresión lineal
+```{r}
+hist(INSTAR$exergia) # todos los datos de energia
+hist(COPLAS_INSTAR$avg_exergia) # datos medios para cada anio
+var_exergia <- aggregate(x = INSTAR$exergia, by=list(year=INSTAR$year), FUN=var, na.rm=TRUE)
+plot(var_exergia)
+
+reg_exergia <- glm(COPLAS_INSTAR$avg_exergia ~ COPLAS_INSTAR$GRADO.REVISADO, family = poisson(link = "log"))
+summary(reg_exergia)
+plot(COPLAS_INSTAR$avg_exergia ~ COPLAS_INSTAR$GRADO.REVISADO, xlab="Grado de infestacion COPLAS", ylab = "Exergia rodal")
+abline(reg_exergia)
+
+plot(reg_exergia)
+dev.off()
+
+### Residuos estandarizados
+residuals<-rstandard(reg_exergia)
+### Valores ajustados
+fitted_values<-fitted(reg_exergia)
+### Grafica valores ajustados vs residuos (asi evaluamos a ojo la homocedasticidad. Esto es discutible...)
+plot(fitted_values, residuals)
+### Grafico QQ para evaluar la normalidad
+qqnorm(residuals)
+qqline(residuals)
+
+ggplot(COPLAS_INSTAR, aes(x=GRADO.REVISADO, y=avg_exergia))+
+geom_point(colour='red', size=6) +
+geom_smooth(method=lm)+
+xlab("Grado infectacion COPLAS")+
+ylab("Exergia media rodal")
+```
+
+?Deberia ser una relacion inversa y no lo es
 
 ## glm [log(l1, l2, l1+l2) vs COPLAS]
 
 Asunciones y modelo de regresión lineal
 ```{r}
-
+glm_l1<-glm(COPLAS_INSTAR$l1_ln ~ COPLAS_INSTAR$GRADO.REVISADO)
+summary(glm_l1)
+plot(glm_l1)
+plot(COPLAS_INSTAR$l1_ln ~ COPLAS_INSTAR$GRADO.REVISADO, xlab="Infestacion COPLAS", ylab = "Ln L1")
 ```
 
 
@@ -358,7 +394,6 @@ Asunciones y modelo de regresión lineal
 
 ## Eliminar 29 de febrero 
 ```{r}
-#Baza_008: eliminar filas 979, 2440, 3901, 5362, 6823
 
 ```
 
