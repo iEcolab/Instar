@@ -346,18 +346,28 @@ library(ggplot2)
 
 ## glm [avg_exergia, sum_l1, sum_l2, sum_l1l2 vs COPLAS]
 
-Se realizara, finalmente, GLM que analicen la relacion entre las variables de Instar (Exergia, sumL1, sumL2 y sumL1L2) y COPLAS. 
-La distribución es de Poisson. 
-- Comprobar dispersion. ¿Como se hace?
+*Se realizara, finalmente, GLM que analicen la relacion entre las variables de Instar (Exergia, sumL1, sumL2 y sumL1L2) y COPLAS. 
+La distribución es de Poisson.*
 
-Asunciones y modelo de regresión lineal
+Una alternativa a la transformacion de la variable respuesta y a la falta de normalidad es el uso de los modelos linales generalizados. Los GLM son una extension de los modelos lineales que permiten utilizar distribuciones no normales de lso errores (Poisson, como en este caso) y varianzas no constantes.
+
+Los modelos Poisoon se utilizan generalmente para representar datos de conteo. El uso de modelos lineales no sería adecuado ante datos de conteo por las siguientes razones:
+- El modelo lineal podría predecir valores negativos de la variable respuesta.
+- La varianza de la variable respuesta aumnetara probablemente a medida que aumenta la media (varianza no constante).
+- Los errores no estan normalmente distribuidos.
+- Los ceros son dificiles de manejar en transformaciones de la variable respuesta. 
+
+Comprobar dispersion. ¿Como se hace? "Overdispersed Poisson occurs when sd >> mean"
+
+###Asunciones y modelo de regresión lineal
+Queda por hacer los GLMs.
 ```{r}
 hist(INSTAR$exergia) # todos los datos de energia
 hist(COPLAS_INSTAR$avg_exergia) # datos medios para cada anio
 var_exergia <- aggregate(x = INSTAR$exergia, by=list(year=INSTAR$year), FUN=var, na.rm=TRUE)
 plot(var_exergia)
 
-reg_exergia <- glm(COPLAS_INSTAR$avg_exergia ~ COPLAS_INSTAR$GRADO.REVISADO, family = poisson(link = "log"))
+reg_exergia <- glm(COPLAS_INSTAR$avg_exergia ~ COPLAS_INSTAR$GRADO.REVISADO, family = poisson(link="log"))
 summary(reg_exergia)
 plot(COPLAS_INSTAR$avg_exergia ~ COPLAS_INSTAR$GRADO.REVISADO, xlab="Grado de infestacion COPLAS", ylab = "Exergia rodal")
 abline(reg_exergia)
