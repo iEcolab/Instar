@@ -339,11 +339,16 @@ COPLAS_INSTAR<-COPLAS_INSTAR[-c(9)] #Eliminar la columna con el nombre del rodal
 
 # VALIDACION EXTERNA
 
-## lm [vigor vs COPLAS]
 ```{r}
 library(graphics)
 library(ggplot2)
 ```
+
+## glm [avg_exergia, sum_l1, sum_l2, sum_l1l2 vs COPLAS]
+
+Se realizara, finalmente, GLM que analicen la relacion entre las variables de Instar (Exergia, sumL1, sumL2 y sumL1L2) y COPLAS. 
+La distribución es de Poisson. 
+- Comprobar dispersion. ¿Como se hace?
 
 Asunciones y modelo de regresión lineal
 ```{r}
@@ -356,7 +361,6 @@ reg_exergia <- glm(COPLAS_INSTAR$avg_exergia ~ COPLAS_INSTAR$GRADO.REVISADO, fam
 summary(reg_exergia)
 plot(COPLAS_INSTAR$avg_exergia ~ COPLAS_INSTAR$GRADO.REVISADO, xlab="Grado de infestacion COPLAS", ylab = "Exergia rodal")
 abline(reg_exergia)
-
 plot(reg_exergia)
 dev.off()
 
@@ -375,14 +379,6 @@ geom_point(colour='red', size=6) +
 geom_smooth(method=lm)+
 xlab("Grado infectacion COPLAS")+
 ylab("Exergia media rodal")
-```
-
-?Deberia ser una relacion inversa y no lo es
-
-## glm [log(l1, l2, l1+l2) vs COPLAS]
-
-Asunciones y modelo de regresión lineal
-```{r}
 glm_l1<-glm(COPLAS_INSTAR$l1_ln ~ COPLAS_INSTAR$GRADO.REVISADO)
 summary(glm_l1)
 plot(glm_l1)
@@ -392,13 +388,12 @@ plot(COPLAS_INSTAR$l1_ln ~ COPLAS_INSTAR$GRADO.REVISADO, xlab="Infestacion COPLA
 
 # VALIDACION INTERNA
 
-## Eliminar 29 de febrero 
-```{r}
-
-```
+##ACP
+Autocorrelation plot. 
+Nos ayudara a saber si existen ciclos dentro de toda la serie temporal. 
 
 ## Definir ts: huevos, l1, l2, crisalidas, energia, tmax, tmin, tmedia
-
+Esto por ahora no sirve. 
 ```{r}
 plaga_ts<-ts(INSTAR[2:5], class=c("mts"), frequency=365)#Frecuencia es igual la numero de dias?
 temp_ts<-ts(INSTAR[7:9], class=c("mts"), frequency=365)
