@@ -412,7 +412,16 @@ The answer to your question of what is needed to report a pattern is dependent o
 
 In terms of what lag to use, this is again a matter of context. It is often the case that there will be specific lags of interest. Say, for example, you may believe the fish species migrates to and from an area every ~30 days. This may lead you to hypothesize a correlation in the time series at lags of 30. In this case, you would have support for your hypothesis.*"
 
-Hay que definir el LAG. ¿?
+"*The blue lines give the values beyond which the autocorrelations are (statistically) significantly different from zero*" 
+
+Hay que definir el LAG. lag.max= 
+
+Primero he probado creando una serie temporal de la variable y luego aplicandole el ACF, y por otro lado he aplicado el ACF sin antes crear la ts. Sale lo mismo...
+```{r}
+huevo_ts<-ts(INSTAR$huevo, frequency = 365)
+huevo_acf<-acf(huevo_ts, type=c("correlation"), plot=TRUE)
+```
+
 ```{r}
 huevo_acf<-acf(INSTAR$huevo, type=c("correlation"), plot=TRUE)
 L1_acf<-acf(INSTAR$L1, type=c("correlation"), plot=TRUE)
@@ -427,7 +436,7 @@ exergia_acf<-acf(INSTAR$exergia, type=c("correlation"), plot=TRUE)
 ## Definir ts: huevos, l1, l2, crisalidas, energia, tmax, tmin, tmedia
 Esto por ahora no sirve. 
 ```{r}
-plaga_ts<-ts(INSTAR[2:5], class=c("mts"), frequency=365)#Frecuencia es igual la numero de dias?
+plaga_ts<-ts(INSTAR[2:5], class=c("mts"), frequency=365)#Frecuencia es igual al numero de dias?
 temp_ts<-ts(INSTAR[7:9], class=c("mts"), frequency=365)
 huevos_ts<-ts(INSTAR$huevo, frequency=365)
 L1_ts<-ts(INSTAR$L1, frequency=365)
