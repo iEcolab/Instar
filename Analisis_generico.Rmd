@@ -373,7 +373,7 @@ Los modelos Poisoon se utilizan generalmente para representar datos de conteo. E
 - Los errores no estan normalmente distribuidos.
 - Los ceros son dificiles de manejar en transformaciones de la variable respuesta. 
 
-Comprobar dispersion. ¿Como se hace? "Overdispersed Poisson occurs when sd >> mean"
+Comprobar dispersion. ?Como se hace? "Overdispersed Poisson occurs when sd >> mean"
 
 ###Asunciones y modelo de regresion lineal
 
@@ -381,7 +381,7 @@ Comprobar dispersion. ¿Como se hace? "Overdispersed Poisson occurs when sd >> me
 Observar:
 - Overdispersion
 
-*Duda: en el libro 'Statistics for biology and health' la overdisp. la calcula como residual deviance/df (pg. 224). Antonio pone que se calcula como sumatoria del cuadrado de los residuos de pearson del modelo / n - (nº parametros del modelo +1). Esto sera, para exergia por ejemplo:*
+*Duda: en el libro 'Statistics for biology and health' la overdisp. la calcula como residual deviance/df (pg. 224). Antonio pone que se calcula como sumatoria del cuadrado de los residuos de pearson del modelo / n - (n? parametros del modelo +1). Esto sera, para exergia por ejemplo:*
 *Formula del libro: 3.8162/18 = 0.21*
 *Formula Antonio: sumar cada residual de pearson al cuadrado calculado antes con 'resid(reg_exergia, type="pearson")^2' =4.20/18-(1+1)= 0.26*
 *En los dos casos es menor que 1, se puede decir que no hay overdisp.?*
@@ -555,7 +555,7 @@ geom_point(colour='red', size=6) +
 geom_smooth(method=lm)+
 xlab("Grado infectacion COPLAS")+
 ylab("Exergia media rodal")
-```
+
 
 
 # VALIDACION INTERNA
@@ -573,24 +573,33 @@ ESTE ANALISIS SOLO SE HACE CON LOS DATOS DE BAZA
 
 "*The blue lines give the values beyond which the autocorrelations are (statistically) significantly different from zero*" 
 
-Hay que definir el LAG. lag.max= 
+Hay que definir el LAG. lag.max= Lo hemos definido como el numero de biociclos.
 
 Primero he probado creando una serie temporal de la variable y luego aplicandole el ACF, y por otro lado he aplicado el ACF sin antes crear la ts. Sale lo mismo...
 ```{r, , fig.show='asis'}
 exergia_ts_y<-ts(agreg_INSTAR_biociclo$avg_exergia, frequency = 1)
 exergia_acf_y<-acf(exergia_ts_y, type=c("correlation"), plot=TRUE, lag.max = 19)
+
 L1_ts_y<-ts(agreg_INSTAR_biociclo$sum_l1, frequency = 1)
 L1_acf_y<-acf(L1_ts_y, type=c("correlation"), plot=TRUE, lag.max = 19)
+
+L2_ts_y<-ts(agreg_INSTAR_biociclo$sum_l2, frequency = 1)
+L2_acf_y<-acf(L2_ts_y, type=c("correlation"), plot=TRUE, lag.max = 19)
+
+huevo_ts_y<-ts(agreg_INSTAR_biociclo$sum_huevo, frequency = 1)
+huevo_acf_y<-acf(huevo_ts_y, type=c("correlation"), plot=TRUE, lag.max = 19)
+
+crisalida_ts_y<-ts(agreg_INSTAR_biociclo$sum_crisalida, frequency = 1)
+crisalida_acf_y<-acf(crisalida_ts_y, type=c("correlation"), plot=TRUE, lag.max = 19)
 ```
 
-```{r, fig.show='asis'}
-huevo_acf<-acf(INSTAR$huevo, type=c("correlation"), plot=TRUE)
-L1_acf<-acf(INSTAR$L1, type=c("correlation"), plot=TRUE)
-L2_acf<-acf(INSTAR$L2, type=c("correlation"), plot=TRUE)
-crisalida_acf<-acf(INSTAR$crisalida, type=c("correlation"), plot=TRUE)
-exergia_acf<-acf(INSTAR$exergia, type=c("correlation"), plot=TRUE)
-```
-El dato de un aÃ±o esta muy correlacionado con el aÃ±o anterior
+CORRELOGRAMAS
+El dato de un anio esta significativamente correlacionado positivamente con el anio anterior. Es decir, el dato de la variable X del anio 't' depende del anio 'anterior't-1' de formar que cuanto mas alto el valor de la variable en 't-1', mayor es en 'este't' anio.
+
+Los Lags 3, 4, 5 indican correlacion negativa (no significativo). Quiere decir que lo que pase en 't' esta negativamente correlacionado con't-3', cuanto mayor la variable en 't-3', menos sera en 't'. 
+
+Esto puede indicar densodependencia, es decri, regulacion por densidad. Una pena que no sea significativo...
+
 ##Analisis de tendencia
 Se eligen indicadores de cada variable para calcular su tendencia.
 En las variables huevo, L1, L2 y crisalida:
@@ -598,53 +607,71 @@ En las variables huevo, L1, L2 y crisalida:
 - Fecha en la que aparece la variable (primer dia en el que la variable es distinta a cero).
 En la variable exergia:
 - fecha del maximo
-- fecha del mÃ­nimo. 
+- fecha del minimo. 
 
 *Nota: se puede calcular el minimo sin contar el 0?
 *Dudas:
 - una vez hecha la regresion, como se calcula la tendencia?
-- hacer por aÃ±o natural o por biocilo? BIOCICLO
+- hacer por anio natural o por biocilo? BIOCICLO
+
 ```{r, fig.show='asis'}
-max_huevo<-aggregate(x = INSTAR$huevo, by=list(year=INSTAR$biociclo), FUN=max, na.rm=TRUE)
+max_huevo<-aggregate(x = INSTAR$huevo, by=list(biociclo=INSTAR$biociclo), FUN=max, na.rm=TRUE)
 names(max_huevo)[2] <- "max_huevo"
 tend_huevo<-lm(max_huevo)
 summary(tend_huevo)
 plot(max_huevo)
-abline(tend_huevo)#No se crea la la recta de regresion?
 dev.off()
-max_L1<-aggregate(x = INSTAR$L1, by=list(year=INSTAR$year), FUN=max, na.rm=TRUE)
+```
+
+```{r}
+max_L1<-aggregate(x = INSTAR$L1, by=list(biociclo=INSTAR$biociclo), FUN=max, na.rm=TRUE)
 names(max_L1)[2] <- "max_L1"
 tend_L1<-lm(max_L1)
 summary(tend_L1)
 plot(max_L1)
 abline(tend_L1)
 dev.off()
+```
+H0=pendiente es cero
+Segun los coefficients de la regresion no se rechaza H0 ya que p>0.05. Tampoco quiere decir que se acepte.
 
-max_L2<-aggregate(x = INSTAR$L2, by=list(year=INSTAR$year), FUN=max, na.rm=TRUE)
+```{r}
+max_L2<-aggregate(x = INSTAR$L2, by=list(biociclo=INSTAR$biociclo), FUN=max, na.rm=TRUE)
 names(max_L2)[2] <- "max_L2"
 tend_L2<-lm(max_L2)
 summary(tend_L2)
 plot(max_L2)
 abline(tend_L2)
 dev.off()
+```
+Aqui si existe significativamente una tendencia negativa.Aunque la oendiente es muy muy baja.
+Podemos relacionarlo con factores abioticos?
 
-max_crisalida<-aggregate(x = INSTAR$crisalida, by=list(year=INSTAR$year), FUN=max, na.rm=TRUE)
+```{r}
+max_crisalida<-aggregate(x = INSTAR$crisalida, by=list(biociclo=INSTAR$biociclo), FUN=max, na.rm=TRUE)
 names(max_crisalida)[2] <- "max_crisalida"
 tend_crisalida<-lm(max_crisalida)
 summary(tend_crisalida)
 plot(max_crisalida)
 abline(tend_crisalida)
 dev.off()
+```
+H0=pendiente es cero
+Segun los coefficients de la regresion no se rechaza H0 ya que p>0.05. Tampoco quiere decir que se acepte.
 
-max_exergia<-aggregate(x = INSTAR$exergia, by=list(year=INSTAR$year), FUN=max, na.rm=TRUE)
+```{r}
+max_exergia<-aggregate(x = INSTAR$exergia, by=list(biociclo=INSTAR$biociclo), FUN=max, na.rm=TRUE)
 names(max_exergia)[2] <- "max_exergia"
 tend_exergia_mx<-lm(max_exergia)
 summary(tend_exergia_mx)
 plot(max_exergia)
 abline(tend_exergia_mx)
 dev.off()
+```
+Aqui si existe significativamente una tendencia negativa.Slope=-0.52 Es alta?
 
-min_exergia<-aggregate(x = INSTAR$exergia, by=list(year=INSTAR$year), FUN=min, na.rm=TRUE)
+```{r}
+min_exergia<-aggregate(x = INSTAR$exergia, by=list(biociclo=INSTAR$biociclo), FUN=min, na.rm=TRUE)
 names(min_exergia)[2] <- "min_exergia"
 tend_exergia_mn<-lm(min_exergia)
 summary(tend_exergia_mn)
@@ -652,7 +679,7 @@ plot(min_exergia)
 abline(tend_exergia_mn)
 dev.off()
 ```
-
+Pendiente=-0.85 (alta), pero no significativa. 
 
 ## Definir ts: huevos, l1, l2, crisalidas, energia, tmax, tmin, tmedia
 Esto por ahora no sirve. 
