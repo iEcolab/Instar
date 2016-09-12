@@ -575,7 +575,6 @@ ESTE ANALISIS SOLO SE HACE CON LOS DATOS DE BAZA
 
 Hay que definir el LAG. lag.max= Lo hemos definido como el numero de biociclos.
 
-Primero he probado creando una serie temporal de la variable y luego aplicandole el ACF, y por otro lado he aplicado el ACF sin antes crear la ts. Sale lo mismo...
 ```{r, , fig.show='asis'}
 exergia_ts_y<-ts(agreg_INSTAR_biociclo$avg_exergia, frequency = 1)
 exergia_acf_y<-acf(exergia_ts_y, type=c("correlation"), plot=TRUE, lag.max = 19)
@@ -605,14 +604,12 @@ Se eligen indicadores de cada variable para calcular su tendencia.
 En las variables huevo, L1, L2 y crisalida:
 - fecha del maximo.
 - Fecha en la que aparece la variable (primer dia en el que la variable es distinta a cero).
+
 En la variable exergia:
 - fecha del maximo
 - fecha del minimo. 
 
 *Nota: se puede calcular el minimo sin contar el 0?
-*Dudas:
-- una vez hecha la regresion, como se calcula la tendencia?
-- hacer por anio natural o por biocilo? BIOCICLO
 
 ```{r, fig.show='asis'}
 max_huevo<-aggregate(x = INSTAR$huevo, by=list(biociclo=INSTAR$biociclo), FUN=max, na.rm=TRUE)
