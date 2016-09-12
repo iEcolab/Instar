@@ -173,7 +173,12 @@ for(i in 1:length(subset_2014$yday)){
        subset_2014$biociclo[i] <- 22, subset_2014$biociclo[i] <- 23)
 }
 
-INSTAR<- rbind(subset_1994, subset_1995, subset_1996, subset_1997, subset_1998, subset_1999, subset_2000, subset_2001, subset_2002, subset_2003, subset_2004, subset_2005, subset_2006, subset_2007, subset_2008, subset_2009, subset_2010, subset_2011, subset_2012, subset_2013) #Se quitan el primer y ultimo biociclo porque no estan completos
+INSTAR<- rbind(subset_1994, subset_1995, subset_1996, subset_1997, subset_1998, subset_1999, subset_2000, subset_2001, subset_2002, subset_2003, subset_2004, subset_2005, subset_2006, subset_2007, subset_2008, subset_2009, subset_2010, subset_2011, subset_2012, subset_2013, subset_2014) #Se quitan el primer y ultimo biociclo porque no estan completos
+
+#QUITAR BIOCICLO 2 y 23(incompletos)
+INSTAR<-INSTAR[!(INSTAR$biociclo=="2"),]
+INSTAR<-INSTAR[!(INSTAR$biociclo=="23"),]
+
 ```
 
 ```{r}
@@ -279,17 +284,21 @@ larvas<-cbind(sum_l1, sum_l2)
 larvas<-larvas[-c(3)]
 larvas$sum_l1l2=larvas[,2]+larvas[,3]
 
+sum_huevo<- aggregate(x = INSTAR$huevo, by=list(biociclo=INSTAR$biociclo), FUN=sum, na.rm=TRUE)
+names(sum_huevo)[2] <- "sum_huevo"
+
+sum_crisalida<- aggregate(x = INSTAR$crisalida, by=list(biociclo=INSTAR$biociclo), FUN=sum, na.rm=TRUE)
+names(sum_crisalida)[2] <- "sum_crisalida"
+
 avg_exergia<-aggregate(INSTAR$exergia, by=list(biociclo=INSTAR$biociclo), FUN=mean, na.rm=TRUE)
 names(avg_exergia)[2] <- "avg_exergia"
 
-agreg_INSTAR <- cbind(larvas,avg_exergia)
-agreg_INSTAR_biociclo <- agreg_INSTAR[ -c(5) ]
 
-#Eliminar fila de biociclo 2 porque no es un ciclo completo, va desde junio hasta marzo. 
-agreg_INSTAR_biociclo<-agreg_INSTAR_biociclo[-c(1),]
+
+agreg_INSTAR <- cbind(larvas,avg_exergia, sum_crisalida, sum_huevo)
+agreg_INSTAR_biociclo <- agreg_INSTAR[ -c(5, 7, 9) ]
 
 #write.csv(agreg_INSTAR_biociclo,"agreg_INSTAR_bz008_biociclo.csv",row.names=FALSE, na="")
-
 ```
 
 ## Ln INSTAR (l1, l2 y l1+l2)
@@ -325,11 +334,14 @@ rodal<-subset(COPLAS, RODAL == "GR023008")
 #rodal<-subset(COPLAS, RODAL == "GR134018")
 #rodal<-subset(COPLAS, RODAL == "GR134020")
 #rodal<-subset(COPLAS, RODAL == "GR134021")
+
+#Eliminar primer y ultimo año porque en Instar no teneos datos de ese año completo. 
+rodal<-rodal[-c(1,2, 23),]
 ```
 
 ## Definir biociclo COPLAS (opcional)
 ```{r}
-rodal$biociclo <- 1:23 #Sierra de Baza
+rodal$biociclo <- 3:22 #Sierra de Baza
 #rodal$biociclo <- 1:15 #Sierra Nevada
 ```
 
@@ -337,7 +349,7 @@ rodal$biociclo <- 1:23 #Sierra de Baza
 En esta tabla aparecen los datos de Instar agregados, los Ln de sumL1, sumL2 y sumL1+sumL2, el anio y el grado de infestacion de COPLAS. 
 ```{r}
 COPLAS_INSTAR<-merge.data.frame(agreg_INSTAR_biociclo, rodal, by.x = "biociclo")
-COPLAS_INSTAR<-COPLAS_INSTAR[-c(9)] #Eliminar la columna con el nombre del rodal
+COPLAS_INSTAR<-COPLAS_INSTAR[-c(8)] #Eliminar la columna con el nombre del rodal
 ```
 
 
@@ -364,19 +376,123 @@ Los modelos Poisoon se utilizan generalmente para representar datos de conteo. E
 Comprobar dispersion. ¿Como se hace? "Overdispersed Poisson occurs when sd >> mean"
 
 ###Asunciones y modelo de regresión lineal
-Queda por hacer los GLMs.
-```{r, fig.show='asis'}
-hist(INSTAR$exergia) # todos los datos de energia
-hist(COPLAS_INSTAR$avg_exergia) # datos medios para cada anio
-var_exergia <- aggregate(x = INSTAR$exergia, by=list(year=INSTAR$year), FUN=var, na.rm=TRUE)
-plot(var_exergia)
 
+####POISSON
+Observar:
+- Overdispersion
+*Duda: en el libro 'Statistics for biology and health' la overdisp. la calcula como residual deviance/df (pg. 224). Antonio pone que se calcula como sumatoria del cuadrado de los residuos de pearson del modelo / n - (nº parametros del modelo +1). Esto sería, para exergia por ejemplo:*
+* - Formula del libro: 3.8162/18 = 0.21*
+* - Formula Antonio: sumar cada residual de pearson al cuadrado calculado antes con 'resid(reg_exergia, type="pearson")^2' =4.20/18-(1+1)= 0.26*
+*En los dos casos es menor que 1, se puede decir que no hay overdisp.?*
+- AIC
+*Duda: los AICs con Poisson son = Inf.*
+- Var. explained (explained deviance)
+*Explained deviance= (100x(null deviance-residual deviance))/null dev.*
+- Coeficientes
+**EXERGIA**
+```{r, fig.show='asis'}
+cor(COPLAS_INSTAR$avg_exergia, COPLAS_INSTAR$GRADO.REVISADO)
 reg_exergia <- glm(COPLAS_INSTAR$avg_exergia ~ COPLAS_INSTAR$GRADO.REVISADO, family = poisson(link="log"))
-summary(reg_exergia)
+summary.glm(reg_exergia)
+```
+
+*"The first two lines tell us which model has been fitted, which is handy if you save the output into a word processor document. Basic numerical information on the residuals is also provided, although in Section 9.8 we present more useful graphical tools that can be used for the model validation process. The estimated intercept and slope are 4.31 and –0.000106, respectively. Keep in mind that distance to the park is expressed in metres. To avoid parameter estimates with lots of zeros, you could (and perhaps should) express it in kilometres, as it will save some ink when presenting the estimated slope on paper. We also get a z-statistic and corresponding p-value for testing the null hypothesis that the slope (and intercept) is equal to 0 and an AIC, which can be used for model selection. The z-statistic is used because we know the variance. In a Gaussian model, the variance is estimated as well, and therefore, a t-statistic is used."*
+*"The smaller the residual deviance, the better is the model."*
+
+```{r, fig.show='asis'}
+#Mirar overdispersion = residual deviance/df
+3.8162/18
+##Pearson residuals
+(resid(reg_exergia, type="pearson"))^2
+(1.51+0.79+0.58+0.003+0.34+0.091+0.41+0.08+0.001+0.01+0.0022+0.003+0.09+0.049+0.149+0.0057+0.067+0.011+0.0021+0.0015) / (18 - (1+1))=0.26
+
+#Mirar explained deviance
+(100*(3.8163-3.8162))/3.8163
+
+#AIC
+AIC(reg_exergia)
+
+
 plot(COPLAS_INSTAR$avg_exergia ~ COPLAS_INSTAR$GRADO.REVISADO, xlab="Grado de infestacion COPLAS", ylab = "Exergia rodal")
 abline(reg_exergia)
 plot(reg_exergia)
 dev.off()
+```
+
+
+**L1**
+```{r}
+cor(COPLAS_INSTAR$sum_l1, COPLAS_INSTAR$GRADO.REVISADO)
+reg_L1 <- glm(COPLAS_INSTAR$sum_l1 ~ COPLAS_INSTAR$GRADO.REVISADO, family = poisson(link="log"))
+summary.glm(reg_L1)
+#Mirar overdispersion
+49182818/18 
+##
+ 
+```
+Sea cual sea la formula que se use va a salir un valor **MUY ALTO**. Decimos que hay overdisp.?? Hacemos quasipoisson:
+```{r}
+reg_L1_qpois <- glm(COPLAS_INSTAR$sum_l1 ~ COPLAS_INSTAR$GRADO.REVISADO, family = quasipoisson)
+summary(reg_L1_qpois)
+```
+Da una dispersion de 2178478 ¿¿??
+*"The dispersion parameter φ is estimated as 2178478. This means that all standard errors have been multiplied by 1476 (the square root of 2178478), and as a result, most parameters are no longer significant!"*
+
+```{r}
+#Mirar explained deviance
+(100*(53589882-49182818))/53589882#=8.223687
+#AIC
+AIC(reg_L1_qpois)#NA
+```
+
+
+**L2**
+```{r}
+cor(COPLAS_INSTAR$sum_l2, COPLAS_INSTAR$GRADO.REVISADO)
+reg_L2 <- glm(COPLAS_INSTAR$sum_l2 ~ COPLAS_INSTAR$GRADO.REVISADO, family = poisson(link="log"))
+summary.glm(reg_L2)
+#Mirar overdispersion
+26968257/18 
+
+reg_L2_qpois <- glm(COPLAS_INSTAR$sum_l2 ~ COPLAS_INSTAR$GRADO.REVISADO, family = quasipoisson)
+summary.glm(reg_L2_qpois)
+#Dispersion segun quasipoison=1402424
+
+#Mirar explained deviance
+(100*(26968257-29317185))/26968257#=-8.709973
+#AIC
+AIC(reg_L2_qpois)#NA
+```
+
+
+**L1+L2**
+```{r}
+cor(COPLAS_INSTAR$sum_l1l2, COPLAS_INSTAR$GRADO.REVISADO)
+reg_L1L2 <- glm(COPLAS_INSTAR$sum_l1l2 ~ COPLAS_INSTAR$GRADO.REVISADO, family = poisson(link="log"))
+summary.glm(reg_L1L2)
+#Mirar overdispersion
+71354778/18 
+
+reg_L1L2_qpois <- glm(COPLAS_INSTAR$sum_l1l2 ~ COPLAS_INSTAR$GRADO.REVISADO, family = quasipoisson)
+summary.glm(reg_L1L2_qpois)
+#Dispersion segun quasipoison=3468083
+
+#Mirar explained deviance
+(100*(71354778-78035661))/71354778#=-8.709973
+#AIC
+AIC(reg_L!L2_qpois)#NA
+```
+
+####NEGATIVE BINOMIAL
+
+```{r}
+
+```
+
+#####ZEROINFLATED
+
+
+
 
 ### Residuos estandarizados
 residuals<-rstandard(reg_exergia)
@@ -387,17 +503,11 @@ plot(fitted_values, residuals)
 ### Grafico QQ para evaluar la normalidad
 qqnorm(residuals)
 qqline(residuals)
-
 ggplot(COPLAS_INSTAR, aes(x=GRADO.REVISADO, y=avg_exergia))+
 geom_point(colour='red', size=6) +
 geom_smooth(method=lm)+
 xlab("Grado infectacion COPLAS")+
 ylab("Exergia media rodal")
-
-glm_l1<-glm(COPLAS_INSTAR$l1_ln ~ COPLAS_INSTAR$GRADO.REVISADO)
-summary(glm_l1)
-plot(glm_l1)
-plot(COPLAS_INSTAR$l1_ln ~ COPLAS_INSTAR$GRADO.REVISADO, xlab="Infestacion COPLAS", ylab = "Ln L1")
 ```
 
 
@@ -419,24 +529,26 @@ ESTE ANALISIS SOLO SE HACE CON LOS DATOS DE BAZA
 Hay que definir el LAG. lag.max= 
 
 Primero he probado creando una serie temporal de la variable y luego aplicandole el ACF, y por otro lado he aplicado el ACF sin antes crear la ts. Sale lo mismo...
-```{r, , fig.show="asis"}
-huevo_ts<-ts(INSTAR$huevo, frequency = 365)
-huevo_acf<-acf(huevo_ts, type=c("correlation"), plot=TRUE)
+```{r, , fig.show='asis'}
+exergia_ts_y<-ts(agreg_INSTAR_biociclo$avg_exergia, frequency = 1)
+exergia_acf_y<-acf(exergia_ts_y, type=c("correlation"), plot=TRUE, lag.max = 19)
+L1_ts_y<-ts(agreg_INSTAR_biociclo$sum_l1, frequency = 1)
+L1_acf_y<-acf(L1_ts_y, type=c("correlation"), plot=TRUE, lag.max = 19)
 ```
 
-```{r, fig.show="asis"}
+```{r, fig.show='asis'}
 huevo_acf<-acf(INSTAR$huevo, type=c("correlation"), plot=TRUE)
 L1_acf<-acf(INSTAR$L1, type=c("correlation"), plot=TRUE)
 L2_acf<-acf(INSTAR$L2, type=c("correlation"), plot=TRUE)
 crisalida_acf<-acf(INSTAR$crisalida, type=c("correlation"), plot=TRUE)
 exergia_acf<-acf(INSTAR$exergia, type=c("correlation"), plot=TRUE)
 ```
-
+El dato de un año esta muy correlacionado con el año anterior
 ##Analisis de tendencia
 Se eligen indicadores de cada variable para calcular su tendencia.
 En las variables huevo, L1, L2 y crisalida:
 - fecha del maximo.
-- Fecha del minimo distinto de 0. Es decir, fecha en la que aparece la variable.
+- Fecha en la que aparece la variable (primer dia en el que la variable es distinta a cero).
 En la variable exergia:
 - fecha del maximo
 - fecha del mínimo. 
@@ -444,9 +556,9 @@ En la variable exergia:
 *Nota: se puede calcular el minimo sin contar el 0?
 *Dudas:
 - una vez hecha la regresion, como se calcula la tendencia?
-- hacer por año natural o por biocilo?
-```{r, fig.show="asis"}
-max_huevo<-aggregate(x = INSTAR$huevo, by=list(year=INSTAR$year), FUN=max, na.rm=TRUE)
+- hacer por año natural o por biocilo? BIOCICLO
+```{r, fig.show='asis'}
+max_huevo<-aggregate(x = INSTAR$huevo, by=list(year=INSTAR$biociclo), FUN=max, na.rm=TRUE)
 names(max_huevo)[2] <- "max_huevo"
 tend_huevo<-lm(max_huevo)
 summary(tend_huevo)
