@@ -363,25 +363,25 @@ library(ggplot2)
 ## glm [avg_exergia, sum_l1, sum_l2, sum_l1l2 vs COPLAS]
 
 *Se realizara, finalmente, GLM que analicen la relacion entre las variables de Instar (Exergia, sumL1, sumL2 y sumL1L2) y COPLAS. 
-La distribución es de Poisson.*
+La distribucion es de Poisson.*
 
 Una alternativa a la transformacion de la variable respuesta y a la falta de normalidad es el uso de los modelos linales generalizados. Los GLM son una extension de los modelos lineales que permiten utilizar distribuciones no normales de lso errores (Poisson, como en este caso) y varianzas no constantes.
 
-Los modelos Poisoon se utilizan generalmente para representar datos de conteo. El uso de modelos lineales no sería adecuado ante datos de conteo por las siguientes razones:
-- El modelo lineal podría predecir valores negativos de la variable respuesta.
+Los modelos Poisoon se utilizan generalmente para representar datos de conteo. El uso de modelos lineales no sera adecuado ante datos de conteo por las siguientes razones:
+- El modelo lineal podra predecir valores negativos de la variable respuesta.
 - La varianza de la variable respuesta aumnetara probablemente a medida que aumenta la media (varianza no constante).
 - Los errores no estan normalmente distribuidos.
 - Los ceros son dificiles de manejar en transformaciones de la variable respuesta. 
 
-Comprobar dispersion. ¿Como se hace? "Overdispersed Poisson occurs when sd >> mean"
+Comprobar dispersion. �Como se hace? "Overdispersed Poisson occurs when sd >> mean"
 
-###Asunciones y modelo de regresión lineal
+###Asunciones y modelo de regresion lineal
 
 ####POISSON
 Observar:
 - Overdispersion
 
-*Duda: en el libro 'Statistics for biology and health' la overdisp. la calcula como residual deviance/df (pg. 224). Antonio pone que se calcula como sumatoria del cuadrado de los residuos de pearson del modelo / n - (nº parametros del modelo +1). Esto sería, para exergia por ejemplo:*
+*Duda: en el libro 'Statistics for biology and health' la overdisp. la calcula como residual deviance/df (pg. 224). Antonio pone que se calcula como sumatoria del cuadrado de los residuos de pearson del modelo / n - (n� parametros del modelo +1). Esto sera, para exergia por ejemplo:*
 *Formula del libro: 3.8162/18 = 0.21*
 *Formula Antonio: sumar cada residual de pearson al cuadrado calculado antes con 'resid(reg_exergia, type="pearson")^2' =4.20/18-(1+1)= 0.26*
 *En los dos casos es menor que 1, se puede decir que no hay overdisp.?*
@@ -429,7 +429,7 @@ reg_L1 <- glm(COPLAS_INSTAR$sum_l1 ~ COPLAS_INSTAR$GRADO.REVISADO, family = pois
 summary.glm(reg_L1)
 #Mirar overdispersion
 49182818/18 
-##
+
  
 ```
 Sea cual sea la formula que se use va a salir un valor **MUY ALTO**. Decimos que hay overdisp.?? Hacemos quasipoisson:
@@ -438,7 +438,7 @@ reg_L1_qpois <- glm(COPLAS_INSTAR$sum_l1 ~ COPLAS_INSTAR$GRADO.REVISADO, family 
 summary(reg_L1_qpois)
 ```
 Da una dispersion de 2178478 ¿¿??
-*"The dispersion parameter φ is estimated as 2178478. This means that all standard errors have been multiplied by 1476 (the square root of 2178478), and as a result, most parameters are no longer significant!"*
+*"The dispersion parameter is estimated as 2178478. This means that all standard errors have been multiplied by 1476 (the square root of 2178478), and as a result, most parameters are no longer significant!"*
 
 ```{r}
 #Mirar explained deviance
@@ -473,7 +473,6 @@ AIC(reg_L2_qpois)#NA
 plot(COPLAS_INSTAR$sum_l2 ~ COPLAS_INSTAR$GRADO.REVISADO, xlab="Grado de infestacion COPLAS", ylab = "Suma L2 en el rodal")
 plot(reg_L2_qpois)
 dev.off()
-
 ```
 
 
@@ -503,12 +502,42 @@ dev.off()
 
 ####NEGATIVE BINOMIAL
 
+**EXERGIA**
 ```{r}
+library(MASS)
+```
 
+```{r}
+reg_exergia_nb<-glm.nb(COPLAS_INSTAR$avg_exergia ~ COPLAS_INSTAR$GRADO.REVISADO, link="log")
+summary(reg_exergia_nb)
+plot(reg_exergia_nb)
+dev.off()
+```
+
+
+**L1**
+```{r}
+reg_L1_nb<-glm.nb(COPLAS_INSTAR$sum_l1 ~ COPLAS_INSTAR$GRADO.REVISADO, link="log")
+summary(reg_L1_nb)
+plot(reg_L1_nb)
+dev.off()
+```
+
+
+**L1+L2**
+```{r}
+reg_L1L2_nb<-glm.nb(COPLAS_INSTAR$sum_l1l2 ~ COPLAS_INSTAR$GRADO.REVISADO, link="log")
+summary(reg_L1L2_nb)
+plot(reg_L1L2_nb)
+dev.off()
 ```
 
 #####ZEROINFLATED
+Corregidme si me equivoco, pero este analisis se utiliza cuando la 'response variable', es decir la variable DEPENDIENTE, tiene muchos ceros. En nuestro caso la variable dependiente es Instar, la cual no tiene ceros. La que tiene ceros es COPLAS (variable independiente)
 
+####MODELOS MIXTOS
+*Creo que esto viene al pelo: "This chapter looks at a data set where our first reaction was: 'How in heavens name are we going to analyse these data?'"*
+Analisis cogido del libro Statistics for biology and health (a partir de p.423)
 
 
 
