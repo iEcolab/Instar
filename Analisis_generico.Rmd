@@ -601,6 +601,7 @@ Esto puede indicar densodependencia, es decri, regulacion por densidad. Una pena
 
 ##Analisis de tendencia
 Se eligen indicadores de cada variable para calcular su tendencia.
+
 En las variables huevo, L1, L2 y crisalida:
 - fecha del maximo.
 - Fecha en la que aparece la variable (primer dia en el que la variable es distinta a cero).
