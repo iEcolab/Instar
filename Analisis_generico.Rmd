@@ -10,7 +10,7 @@ He definido el WD de manera manual.
 Definir como directorio la carpeta COPLAS_PLAGAS
 # Cargar paquetes
 ```{r}
-install.packages("lubridate")
+#install.packages("lubridate")
 library(lubridate) # Para las fechas
 ```
 
@@ -365,7 +365,7 @@ Comprobar dispersion. ¿Como se hace? "Overdispersed Poisson occurs when sd >> m
 
 ###Asunciones y modelo de regresión lineal
 Queda por hacer los GLMs.
-```{r}
+```{r, fig.show="asis"}
 hist(INSTAR$exergia) # todos los datos de energia
 hist(COPLAS_INSTAR$avg_exergia) # datos medios para cada anio
 var_exergia <- aggregate(x = INSTAR$exergia, by=list(year=INSTAR$year), FUN=var, na.rm=TRUE)
@@ -393,6 +393,7 @@ geom_point(colour='red', size=6) +
 geom_smooth(method=lm)+
 xlab("Grado infectacion COPLAS")+
 ylab("Exergia media rodal")
+
 glm_l1<-glm(COPLAS_INSTAR$l1_ln ~ COPLAS_INSTAR$GRADO.REVISADO)
 summary(glm_l1)
 plot(glm_l1)
@@ -418,12 +419,12 @@ ESTE ANALISIS SOLO SE HACE CON LOS DATOS DE BAZA
 Hay que definir el LAG. lag.max= 
 
 Primero he probado creando una serie temporal de la variable y luego aplicandole el ACF, y por otro lado he aplicado el ACF sin antes crear la ts. Sale lo mismo...
-```{r}
+```{r, , fig.show="asis"}
 huevo_ts<-ts(INSTAR$huevo, frequency = 365)
 huevo_acf<-acf(huevo_ts, type=c("correlation"), plot=TRUE)
 ```
 
-```{r}
+```{r, fig.show="asis"}
 huevo_acf<-acf(INSTAR$huevo, type=c("correlation"), plot=TRUE)
 L1_acf<-acf(INSTAR$L1, type=c("correlation"), plot=TRUE)
 L2_acf<-acf(INSTAR$L2, type=c("correlation"), plot=TRUE)
@@ -444,7 +445,7 @@ En la variable exergia:
 *Dudas:
 - una vez hecha la regresion, como se calcula la tendencia?
 - hacer por año natural o por biocilo?
-```{r}
+```{r, fig.show="asis"}
 max_huevo<-aggregate(x = INSTAR$huevo, by=list(year=INSTAR$year), FUN=max, na.rm=TRUE)
 names(max_huevo)[2] <- "max_huevo"
 tend_huevo<-lm(max_huevo)
