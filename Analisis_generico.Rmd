@@ -380,15 +380,17 @@ Comprobar dispersion. ¿Como se hace? "Overdispersed Poisson occurs when sd >> m
 ####POISSON
 Observar:
 - Overdispersion
+
 *Duda: en el libro 'Statistics for biology and health' la overdisp. la calcula como residual deviance/df (pg. 224). Antonio pone que se calcula como sumatoria del cuadrado de los residuos de pearson del modelo / n - (nº parametros del modelo +1). Esto sería, para exergia por ejemplo:*
-* - Formula del libro: 3.8162/18 = 0.21*
-* - Formula Antonio: sumar cada residual de pearson al cuadrado calculado antes con 'resid(reg_exergia, type="pearson")^2' =4.20/18-(1+1)= 0.26*
+* Formula del libro: 3.8162/18 = 0.21*
+* Formula Antonio: sumar cada residual de pearson al cuadrado calculado antes con 'resid(reg_exergia, type="pearson")^2' =4.20/18-(1+1)= 0.26*
 *En los dos casos es menor que 1, se puede decir que no hay overdisp.?*
 - AIC
 *Duda: los AICs con Poisson son = Inf.*
 - Var. explained (explained deviance)
 *Explained deviance= (100x(null deviance-residual deviance))/null dev.*
 - Coeficientes
+
 **EXERGIA**
 ```{r, fig.show='asis'}
 cor(COPLAS_INSTAR$avg_exergia, COPLAS_INSTAR$GRADO.REVISADO)
