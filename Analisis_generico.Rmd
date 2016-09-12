@@ -365,7 +365,7 @@ Comprobar dispersion. ¿Como se hace? "Overdispersed Poisson occurs when sd >> m
 
 ###Asunciones y modelo de regresión lineal
 Queda por hacer los GLMs.
-```{r, fig.show="asis"}
+```{r, fig.show='asis'}
 hist(INSTAR$exergia) # todos los datos de energia
 hist(COPLAS_INSTAR$avg_exergia) # datos medios para cada anio
 var_exergia <- aggregate(x = INSTAR$exergia, by=list(year=INSTAR$year), FUN=var, na.rm=TRUE)
