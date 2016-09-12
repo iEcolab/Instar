@@ -382,8 +382,8 @@ Observar:
 - Overdispersion
 
 *Duda: en el libro 'Statistics for biology and health' la overdisp. la calcula como residual deviance/df (pg. 224). Antonio pone que se calcula como sumatoria del cuadrado de los residuos de pearson del modelo / n - (nº parametros del modelo +1). Esto sería, para exergia por ejemplo:*
-* Formula del libro: 3.8162/18 = 0.21*
-* Formula Antonio: sumar cada residual de pearson al cuadrado calculado antes con 'resid(reg_exergia, type="pearson")^2' =4.20/18-(1+1)= 0.26*
+*Formula del libro: 3.8162/18 = 0.21*
+*Formula Antonio: sumar cada residual de pearson al cuadrado calculado antes con 'resid(reg_exergia, type="pearson")^2' =4.20/18-(1+1)= 0.26*
 *En los dos casos es menor que 1, se puede decir que no hay overdisp.?*
 - AIC
 *Duda: los AICs con Poisson son = Inf.*
@@ -413,10 +413,10 @@ summary.glm(reg_exergia)
 
 #AIC
 AIC(reg_exergia)
+```
 
-
+```{r}
 plot(COPLAS_INSTAR$avg_exergia ~ COPLAS_INSTAR$GRADO.REVISADO, xlab="Grado de infestacion COPLAS", ylab = "Exergia rodal")
-abline(reg_exergia)
 plot(reg_exergia)
 dev.off()
 ```
@@ -445,8 +445,12 @@ Da una dispersion de 2178478 ¿¿??
 (100*(53589882-49182818))/53589882#=8.223687
 #AIC
 AIC(reg_L1_qpois)#NA
-```
 
+#plots
+plot(COPLAS_INSTAR$sum_l1 ~ COPLAS_INSTAR$GRADO.REVISADO, xlab="Grado de infestacion COPLAS", ylab = "Suma L1 en el rodal")
+plot(reg_L1_qpois)
+dev.off()
+```
 
 **L2**
 ```{r}
@@ -464,6 +468,12 @@ summary.glm(reg_L2_qpois)
 (100*(26968257-29317185))/26968257#=-8.709973
 #AIC
 AIC(reg_L2_qpois)#NA
+
+#plots
+plot(COPLAS_INSTAR$sum_l2 ~ COPLAS_INSTAR$GRADO.REVISADO, xlab="Grado de infestacion COPLAS", ylab = "Suma L2 en el rodal")
+plot(reg_L2_qpois)
+dev.off()
+
 ```
 
 
@@ -483,7 +493,13 @@ summary.glm(reg_L1L2_qpois)
 (100*(71354778-78035661))/71354778#=-8.709973
 #AIC
 AIC(reg_L!L2_qpois)#NA
+
+#plots
+plot(COPLAS_INSTAR$sum_l1l2 ~ COPLAS_INSTAR$GRADO.REVISADO, xlab="Grado de infestacion COPLAS", ylab = "Suma L1 y L2 en el rodal")
+plot(reg_L1L2_qpois)
+dev.off()
 ```
+
 
 ####NEGATIVE BINOMIAL
 
