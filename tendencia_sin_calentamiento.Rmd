@@ -1,0 +1,377 @@
+---
+title: "analisis_sin_calentamiento"
+author: "Almudena Blanco"
+date: "September 15, 2016"
+output: word_document
+---
+# Cargar paquetes
+```{r, include=FALSE}
+#install.packages("lubridate")
+library(lubridate) # Para las fechas
+```
+
+# DATOS INSTAR
+
+## Importar datos INSTAR 
+
+- La tabla de datos se construye en excel y se guarda como .csv
+- Se abre con procesador de texto, y se comprueba que la fecha esta en formato mm-dd-yy
+- Se guarda como .txt
+ Las columnas que constituyen la tabla son: fecha, huevo, L1, L2, crisalida, radiacion, tmax, tmin, tmed y exergia.
+
+```{r, echo=FALSE}
+INSTAR<-read.table("instar_bz008.txt", header=T, sep=",", dec=".")
+INSTAR$fecha <-as.Date(INSTAR$fecha, format="%m-%d-%y")
+```
+
+## Anadir biociclos al data.frame
+```{r, echo=FALSE}
+INSTAR$yday <- yday(INSTAR$fecha) # anadimos el dia del anio con el paquete lubridate
+INSTAR$year <- year(INSTAR$fecha) # anadimos el anio con el paquete lubridate
+INSTAR$biociclo <- NULL
+#write.csv(INSTAR, file = "INSTAR_baza006.csv", row.names=FALSE, na="")
+```
+
+Aparece dos chunks para este proceso, uno para Baza y otro para Sierra Nevada, ya que tienen fechas de inicio diferentes. 
+
+```{r, echo=FALSE}
+#Baza
+subset_1993 <- subset(INSTAR, INSTAR$year==1993)
+for(i in 1:length(subset_1993$yday)){
+  ifelse(subset_1993$yday[i]<=79, 
+       subset_1993$biociclo[i] <- 1, subset_1993$biociclo[i] <- 2)
+}
+
+subset_1994 <- subset(INSTAR, INSTAR$year==1994)
+for(i in 1:length(subset_1994$yday)){
+  ifelse(subset_1994$yday[i]<=79, 
+       subset_1994$biociclo[i] <- 2, subset_1994$biociclo[i] <- 3)
+}
+
+subset_1995 <- subset(INSTAR, INSTAR$year==1995)
+for(i in 1:length(subset_1995$yday)){
+  ifelse(subset_1995$yday[i]<=79, 
+       subset_1995$biociclo[i] <- 3, subset_1995$biociclo[i] <- 4)
+}
+
+subset_1996 <- subset(INSTAR, INSTAR$year==1996)
+for(i in 1:length(subset_1996$yday)){
+  ifelse(subset_1996$yday[i]<=79, 
+       subset_1996$biociclo[i] <- 4, subset_1996$biociclo[i] <- 5)
+}
+
+subset_1997 <- subset(INSTAR, INSTAR$year==1997)
+for(i in 1:length(subset_1997$yday)){
+  ifelse(subset_1997$yday[i]<=79, 
+       subset_1997$biociclo[i] <- 5, subset_1997$biociclo[i] <- 6)
+}
+
+subset_1998 <- subset(INSTAR, INSTAR$year==1998)
+for(i in 1:length(subset_1998$yday)){
+  ifelse(subset_1998$yday[i]<=79, 
+       subset_1998$biociclo[i] <- 6, subset_1998$biociclo[i] <- 7)
+}
+
+subset_1999 <- subset(INSTAR, INSTAR$year==1999)
+for(i in 1:length(subset_1999$yday)){
+  ifelse(subset_1999$yday[i]<=79, 
+       subset_1999$biociclo[i] <- 7, subset_1999$biociclo[i] <- 8)
+}
+
+subset_2000 <- subset(INSTAR, INSTAR$year==2000)
+for(i in 1:length(subset_2000$yday)){
+  ifelse(subset_2000$yday[i]<=79, 
+       subset_2000$biociclo[i] <- 8, subset_2000$biociclo[i] <- 9)
+}
+
+subset_2001 <- subset(INSTAR, INSTAR$year==2001)
+for(i in 1:length(subset_2001$yday)){
+  ifelse(subset_2001$yday[i]<=79, 
+       subset_2001$biociclo[i] <- 9, subset_2001$biociclo[i] <- 10)
+}
+
+subset_2002 <- subset(INSTAR, INSTAR$year==2002)
+for(i in 1:length(subset_2002$yday)){
+  ifelse(subset_2002$yday[i]<=79, 
+       subset_2002$biociclo[i] <- 10, subset_2002$biociclo[i] <- 11)
+}
+
+subset_2003 <- subset(INSTAR, INSTAR$year==2003)
+for(i in 1:length(subset_2003$yday)){
+  ifelse(subset_2003$yday[i]<=79, 
+       subset_2003$biociclo[i] <- 11, subset_2003$biociclo[i] <- 12)
+}
+
+subset_2004 <- subset(INSTAR, INSTAR$year==2004)
+for(i in 1:length(subset_2004$yday)){
+  ifelse(subset_2004$yday[i]<=79, 
+       subset_2004$biociclo[i] <- 12, subset_2004$biociclo[i] <- 13)
+}
+subset_2005 <- subset(INSTAR, INSTAR$year==2005)
+for(i in 1:length(subset_2005$yday)){
+  ifelse(subset_2005$yday[i]<=79, 
+       subset_2005$biociclo[i] <- 13, subset_2005$biociclo[i] <- 14)
+}
+
+subset_2006 <- subset(INSTAR, INSTAR$year==2006)
+for(i in 1:length(subset_2006$yday)){
+  ifelse(subset_2006$yday[i]<=79, 
+       subset_2006$biociclo[i] <- 14, subset_2006$biociclo[i] <- 15)
+}
+
+subset_2007 <- subset(INSTAR, INSTAR$year==2007)
+for(i in 1:length(subset_2007$yday)){
+  ifelse(subset_2007$yday[i]<=79, 
+       subset_2007$biociclo[i] <- 15, subset_2007$biociclo[i] <- 16)
+}
+
+subset_2008 <- subset(INSTAR, INSTAR$year==2008)
+for(i in 1:length(subset_2008$yday)){
+  ifelse(subset_2008$yday[i]<=79, 
+       subset_2008$biociclo[i] <- 16, subset_2008$biociclo[i] <- 17)
+}
+
+subset_2009 <- subset(INSTAR, INSTAR$year==2009)
+for(i in 1:length(subset_2009$yday)){
+  ifelse(subset_2009$yday[i]<=79, 
+       subset_2009$biociclo[i] <- 17, subset_2009$biociclo[i] <- 18)
+}
+
+subset_2010 <- subset(INSTAR, INSTAR$year==2010)
+for(i in 1:length(subset_2010$yday)){
+  ifelse(subset_2010$yday[i]<=79, 
+       subset_2010$biociclo[i] <- 18, subset_2010$biociclo[i] <- 19)
+}
+
+subset_2011 <- subset(INSTAR, INSTAR$year==2011)
+for(i in 1:length(subset_2011$yday)){
+  ifelse(subset_2011$yday[i]<=79, 
+       subset_2011$biociclo[i] <- 19, subset_2011$biociclo[i] <- 20)
+}
+
+subset_2012 <- subset(INSTAR, INSTAR$year==2012)
+for(i in 1:length(subset_2012$yday)){
+  ifelse(subset_2012$yday[i]<=79, 
+       subset_2012$biociclo[i] <- 20, subset_2012$biociclo[i] <- 21)
+}
+
+subset_2013 <- subset(INSTAR, INSTAR$year==2013)
+for(i in 1:length(subset_2013$yday)){
+  ifelse(subset_2013$yday[i]<=79, 
+       subset_2013$biociclo[i] <- 21, subset_2013$biociclo[i] <- 22)
+}
+
+subset_2014 <- subset(INSTAR, INSTAR$year==2014)
+for(i in 1:length(subset_2014$yday)){
+  ifelse(subset_2014$yday[i]<=79, 
+       subset_2014$biociclo[i] <- 22, subset_2014$biociclo[i] <- 23)
+}
+
+INSTAR<- rbind(subset_1994, subset_1995, subset_1996, subset_1997, subset_1998, subset_1999, subset_2000, subset_2001, subset_2002, subset_2003, subset_2004, subset_2005, subset_2006, subset_2007, subset_2008, subset_2009, subset_2010, subset_2011, subset_2012, subset_2013, subset_2014) #Se quitan el primer y ultimo biociclo porque no estan completos
+
+#QUITAR BIOCICLO 2 y 23(incompletos)
+INSTAR<-INSTAR[!(INSTAR$biociclo=="2"),]
+INSTAR<-INSTAR[!(INSTAR$biociclo=="23"),]
+
+#write.csv(INSTAR, file="INSTAR_baza008.csv")
+```
+
+## Agregacion INSTAR
+
+Media del vigor y sumas (l1, l2 y l1+l2) por biociclo
+
+```{r, echo=FALSE}
+sum_l1<- aggregate(x = INSTAR$L1, by=list(biociclo=INSTAR$biociclo), FUN=sum, na.rm=TRUE)
+names(sum_l1)[2] <- "sum_l1"
+
+sum_l2<- aggregate(x = INSTAR$L2, by=list(biociclo=INSTAR$biociclo), FUN=sum, na.rm=TRUE)
+names(sum_l2)[2] <- "sum_l2"
+
+larvas<-cbind(sum_l1, sum_l2)
+larvas<-larvas[-c(3)]
+larvas$sum_l1l2=larvas[,2]+larvas[,3]
+
+sum_huevo<- aggregate(x = INSTAR$huevo, by=list(biociclo=INSTAR$biociclo), FUN=sum, na.rm=TRUE)
+names(sum_huevo)[2] <- "sum_huevo"
+
+sum_crisalida<- aggregate(x = INSTAR$crisalida, by=list(biociclo=INSTAR$biociclo), FUN=sum, na.rm=TRUE)
+names(sum_crisalida)[2] <- "sum_crisalida"
+
+avg_exergia<-aggregate(INSTAR$exergia, by=list(biociclo=INSTAR$biociclo), FUN=mean, na.rm=TRUE)
+names(avg_exergia)[2] <- "avg_exergia"
+
+
+agreg_INSTAR <- cbind(larvas,avg_exergia, sum_crisalida, sum_huevo)
+agreg_INSTAR_biociclo <- agreg_INSTAR[ -c(5, 7, 9) ]
+
+#write.csv(agreg_INSTAR_biociclo,"agreg_INSTAR_sn020_biociclo.csv",row.names=FALSE, na="")
+```
+
+##Analisis de tendencia Sin calentamiento
+
+```{r}
+ind_feno<-read.csv("indicadores_feno_bz008.csv", header = TRUE, sep = ",", dec = ".")
+ind_feno<-ind_feno[-c(1:3),]
+
+```
+
+```{r}
+library(Kendall)
+```
+
+Se eligen indicadores de cada variable para calcular su tendencia.
+
+En las variables huevo, L1, L2 y crisalida:
+
+- Fecha del maximo. 
+
+- Fecha del primer dia distinto a cero. 
+
+- Fecha del ultimo dia distinto a cero. 
+
+
+En la variable exergia:
+
+- Fecha del maximo.
+
+- Fecha del minimo. 
+
+H0= no ha tendencia. Si p<0.05 entonces si hay tendencia!
+
+**TENDENCIA EN HUEVOS**
+
+*DIA DE PICO MAXIMO*
+```{r, echo=FALSE}
+max_huevo <- merge(aggregate(huevo ~ biociclo, data = INSTAR, FUN = max), INSTAR)
+max_huevo <- max_huevo[ -c(2:11,13) ] #Quedarme solo con biociclo-dia
+names(max_huevo)[2] <- "dia_max_huevo"
+max_huevo<-max_huevo[-c(14:16),]
+tend_max_huevo<-MannKendall(max_huevo$dia_max_huevo)
+summary(tend_max_huevo)
+plot(max_huevo, ylab="Dia con el maximo numero de huevos", las=1, xlab="Tiempo")
+```
+
+*PRIMER DIA*
+```{r, echo=FALSE}
+tend_ini_huevo<-MannKendall(ind_feno$I_huevo)
+summary(tend_ini_huevo)
+plot(ind_feno$I_huevo, ylab="Dia del inicio del periodo de presencia de huevos", las=1, xlab="Tiempo")
+```
+
+*ULTIMO DIA*
+```{r, echo=FALSE}
+tend_fin_huevo<-MannKendall(ind_feno$F_huevo)
+summary(tend_fin_huevo)
+plot(ind_feno$F_huevo, ylab="Dia del final del periodo de presencia de huevos", las=1, xlab="Tiempo")
+```
+
+**TENDENCIA EN L1**
+
+*DIA DE PICO MAXIMO*
+```{r, echo=FALSE}
+max_l1 <- merge(aggregate(L1 ~ biociclo, data = INSTAR, FUN = max), INSTAR, raw.names=FALSE)
+max_l1 <- max_l1[ -c(2:11,13) ] #Quedarme solo con biociclo-dia
+names(max_l1)[2] <- "dia_max_L1"
+max_l1<-max_l1[-c(14:16),]
+tend_max_l1<-MannKendall(max_l1$dia_max_L1)
+summary(tend_max_l1)
+plot(max_l1, ylab="Dia con el maximo numero de larvas 1", las= 1, xlab = "Tiempo")
+```
+
+
+*PRIMER DIA*
+```{r, echo=FALSE}
+tend_ini_L1<-MannKendall(ind_feno$I_l1)
+summary(tend_ini_L1)
+plot(ind_feno$I_l1, ylab="Dia del inicio del periodo de presencia de larvas 1", las=1, xlab="Tiempo")
+```
+
+
+*ULTIMO DIA*
+```{r, echo=FALSE}
+tend_fin_L1<-MannKendall(ind_feno$F_l1)
+summary(tend_fin_L1)
+plot(ind_feno$F_l1, ylab="Dia del final del periodo de presencia de larvas 1", las=1, xlab="Tiempo")
+```
+
+
+**TENDENCIA EN L2**
+
+*DIA DE PICO MAXIMO*
+```{r, echo=FALSE}
+max_l2 <- merge(aggregate(L2 ~ biociclo, data = INSTAR, FUN = max), INSTAR)
+max_l2 <- max_l2[ -c(2:11,13) ] #Quedarme solo con biociclo-dia
+names(max_l2)[2] <- "dia_max_L2"
+max_l2<-max_l2[-c(14:16),]
+tend_max_l2<-MannKendall(max_l2$dia_max_L2)
+summary(tend_max_l2)
+plot(max_l2, ylab="Dia con el maximo numero de larvas 2", las= 1, xlab = "Tiempo")
+```
+
+
+*PRIMER DIA*
+```{r, echo=FALSE}
+tend_ini_L2<-MannKendall(ind_feno$I_l2)
+summary(tend_ini_L2)
+plot(ind_feno$I_l2, ylab="Dia del inicio del periodo de presencia de larvas 2", las=1, xlab="Tiempo")
+```
+
+
+*ULTIMO DIA*
+```{r, echo=FALSE}
+tend_fin_L2<-MannKendall(ind_feno$F_l2)
+summary(tend_fin_L2)
+plot(ind_feno$F_l2, ylab="Dia del final inicio del periodo de presencia de larvas 2", las=1, xlab="Tiempo")
+```
+
+
+**TENDENCIA EN CRISALIDA**
+
+*DIA DE PICO MAXIMO*
+```{r, echo=FALSE}
+tend_max_crisalida<-MannKendall(ind_feno$max_crisalida)
+summary(tend_max_crisalida)
+plot(ind_feno$max_crisalida, ylab="Dia con el maximo numero de crisalidas", las=1, xlab="Tiempo")
+```
+
+
+*PRIMER DIA*
+```{r, echo=FALSE}
+tend_ini_crisalida<-MannKendall(ind_feno$I_crisalida)
+summary(tend_ini_crisalida)
+plot(ind_feno$I_crisalida, ylab="Dia del inicio del periodo de presencia de crisalidas", las=1, xlab="Tiempo")
+```
+
+
+*ULTIMO DIA*
+```{r, echo=FALSE}
+tend_fin_crisalida<-MannKendall(ind_feno$F_crisalida)
+summary(tend_fin_crisalida)
+plot(ind_feno$F_crisalida, ylab="Dia del final del periodo de presencia de crisalidas", las=1, xlab="Tiempo")
+```
+ 
+
+**TENDENCIA EN EXERGIA**
+
+*DIA DLE PICO MAXIMO*
+```{r, echo=FALSE}
+max_exergia <- merge(aggregate(exergia ~ biociclo, data = INSTAR, FUN = max), INSTAR)
+max_exergia <- max_exergia[ -c(2:11,13) ] #Quedarme solo con biociclo-dia
+names(max_exergia)[2] <- "dia_max_exergia"
+max_exergia<-max_exergia[-c(14:16),]
+tend_max_exergia<-MannKendall(max_exergia$dia_max_exergia)
+summary(tend_max_exergia)
+plot(max_exergia, ylab="Dia con la maxima exergia", las= 1, xlab = "Tiempo")
+```
+
+*DIA DEL PICO MINIMO*
+```{r, echo=FALSE}
+min_exergia <- merge(aggregate(exergia ~ biociclo, data = INSTAR, FUN = min), INSTAR)
+min_exergia <- min_exergia[ -c(2:11,13) ] #Quedarme solo con biociclo-dia
+names(min_exergia)[2] <- "dia_min_exergia"
+min_exergia<-min_exergia[-c(14:16),]
+tend_min_exergia<-MannKendall(min_exergia$dia_min_exergia)
+summary(tend_min_exergia)
+plot(min_exergia, ylab="Dia con la minima exergia", las= 1, xlab = "Tiempo")
+```
+
